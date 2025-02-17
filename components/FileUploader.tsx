@@ -2,15 +2,15 @@
 
 import React, { useCallback, useState } from "react";
 
-import { useDropzone } from "react-dropzone";
-import { Button } from "@/components/ui/button";
-import { cn, convertFileToUrl, getFileType } from "@/lib/utils";
-import Image from "next/image";
 import Thumbnail from "@/components/Thumbnail";
+import { Button } from "@/components/ui/button";
 import { MAX_FILE_SIZE } from "@/constants";
 import { useToast } from "@/hooks/use-toast";
 import { uploadFile } from "@/lib/actions/file.actions";
+import { cn, convertFileToUrl, getFileType } from "@/lib/utils";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
+import { useDropzone } from "react-dropzone";
 
 interface Props {
   ownerId: string;
@@ -44,20 +44,30 @@ const FileUploader = ({ ownerId, accountId, className }: Props) => {
           });
         }
 
-        return uploadFile({ file, ownerId, accountId, path }).then(
-          (uploadedFile) => {
-            if (uploadedFile) {
-              setFiles((prevFiles) =>
-                prevFiles.filter((f) => f.name !== file.name),
-              );
-            }
-          },
-        );
+        try {
+          const result = await uploadFile({ file, ownerId, accountId, path });
+          
+          if (result) {
+            setFiles((prevFiles) =>
+              prevFiles.filter((f) => f.name !== file.name),
+            );
+          }
+        } catch (error) {
+          console.error('Upload error:', error);
+          toast({
+            description: (
+              <p className="body-2 text-white">
+                Failed to upload {file.name}. Please try again.
+              </p>
+            ),
+            className: "error-toast",
+          });
+        }
       });
 
       await Promise.all(uploadPromises);
     },
-    [ownerId, accountId, path],
+    [ownerId, accountId, path, toast],
   );
 
   const { getRootProps, getInputProps } = useDropzone({ onDrop });
