@@ -27,7 +27,7 @@ const authFormSchema = (formType: FormType) => {
     email: z.string().email(),
     fullName:
       formType === "sign-up"
-        ? z.string().min(2).max(50)
+        ? z.string().min(2, "Name must have at least two characters").max(50)
         : z.string().optional(),
   });
 };
