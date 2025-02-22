@@ -30,6 +30,7 @@ import {
 } from "@/lib/actions/file.actions";
 import { usePathname } from "next/navigation";
 import { FileDetails, ShareInput } from "@/components/ActionsModalContent";
+import { toast } from "@/hooks/use-toast";
 
 const ActionDropdown = ({ file }: { file: Models.Document }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -49,6 +50,17 @@ const ActionDropdown = ({ file }: { file: Models.Document }) => {
     //   setEmails([]);
   };
 
+  const handleDeleteFile = async () => {
+    await deleteFile({
+      fileId: file.$id,
+      bucketFileId: file.bucketFileId,
+      path,
+    });
+    toast({
+      description: "File deleted successfully",
+    });
+  };
+
   const handleAction = async () => {
     if (!action) return;
     setIsLoading(true);
@@ -58,8 +70,7 @@ const ActionDropdown = ({ file }: { file: Models.Document }) => {
       rename: () =>
         renameFile({ fileId: file.$id, name, extension: file.extension, path }),
       share: () => updateFileUsers({ fileId: file.$id, emails, path }),
-      delete: () =>
-        deleteFile({ fileId: file.$id, bucketFileId: file.bucketFileId, path }),
+      delete: handleDeleteFile,
     };
 
     success = await actions[action.value as keyof typeof actions]();
