@@ -46,14 +46,17 @@ const FileUploader = ({ ownerId, accountId, className }: Props) => {
 
         try {
           const result = await uploadFile({ file, ownerId, accountId, path });
-          
+
           if (result) {
             setFiles((prevFiles) =>
               prevFiles.filter((f) => f.name !== file.name),
             );
           }
+          toast({
+            description: "File uploaded successfully",
+          });
         } catch (error) {
-          console.error('Upload error:', error);
+          console.error("Upload error:", error);
           toast({
             description: (
               <p className="body-2 text-white">
